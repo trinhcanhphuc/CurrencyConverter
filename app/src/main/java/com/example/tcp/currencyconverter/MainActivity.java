@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.example.tcp.currencyconverter.api.AsyncGetCurrencyConvert;
 import com.example.tcp.currencyconverter.api.Currency;
 
 import org.w3c.dom.Document;
@@ -25,17 +27,19 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 public class MainActivity extends AppCompatActivity {
 
-    List<Currency> currencyList = new ArrayList<>();
+    public static List<Currency> currencyList = new ArrayList<>();
     String[] listNameCurrency;
     ArrayAdapter<String> adapterOne, adapterTwo;
     EditText eTCurrencyOne, eTCurrencyTwo;
     int currencyOneIndex, currencyTwoIndex;
+
+    Button btnProgress;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        try {
+        /*try {
             InputStream inputFile = getAssets().open("bankUaCom.xml");
             DocumentBuilderFactory dbFactory
                     = DocumentBuilderFactory.newInstance();
@@ -103,7 +107,44 @@ public class MainActivity extends AppCompatActivity {
 
         spinnerTwo.setOnItemSelectedListener(new MyProcessEvent2());
         eTCurrencyTwo = (EditText) findViewById(R.id.edit_text_currency_two);
+        */
 
+
+        eTCurrencyOne = (EditText) findViewById(R.id.edit_text_currency_one);
+        eTCurrencyTwo = (EditText) findViewById(R.id.edit_text_currency_two);
+        new AsyncGetCurrencyConvert(1f,
+                "CNY", "CHF", eTCurrencyTwo).execute();
+        listNameCurrency = new String[]{"CNY", "CHF", "SEK", "CZK", "GBP", "HUF",
+                "TRY", "KZT", "XDR", "SGD", "IDR", "RON", "RUB", "NOK", "NZD", "ILS", "MDL", "MXN",
+                "HRK", "CAD", "IRR", "INR", "PLN", "JPY", "EGP", "EUR", "USD", "DKK", "HKD", "KRW",
+                "BGN", "BYN", "THB", "AUD"};
+
+        Spinner spinnerOne = (Spinner) findViewById(R.id.spinner_currency_one);
+        adapterOne = new ArrayAdapter<String>
+                (
+                        this,
+                        android.R.layout.simple_spinner_item,
+                        listNameCurrency
+                );
+
+        adapterOne.setDropDownViewResource (android.R.layout.simple_list_item_single_choice);
+        spinnerOne.setAdapter(adapterOne);
+
+        spinnerOne.setOnItemSelectedListener(new MyProcessEvent1());
+
+        Spinner spinnerTwo = (Spinner) findViewById(R.id.spinner_currency_two);
+        adapterTwo = new ArrayAdapter<String>
+                (
+                        this,
+                        android.R.layout.simple_spinner_item,
+                        listNameCurrency
+                );
+
+        adapterTwo.setDropDownViewResource (android.R.layout.simple_list_item_single_choice);
+        spinnerTwo.setAdapter(adapterTwo);
+        spinnerTwo.setSelection(1);
+
+        spinnerTwo.setOnItemSelectedListener(new MyProcessEvent2());
     }
 
     private class MyProcessEvent1 implements AdapterView.OnItemSelectedListener
@@ -124,8 +165,8 @@ public class MainActivity extends AppCompatActivity {
         public void onItemSelected(AdapterView<?> arg0, View arg1, int index, long arg3) {
             currencyTwoIndex = index;
             eTCurrencyTwo.setText(String.valueOf(convertCurrency(Float.parseFloat(eTCurrencyOne.getText().toString()),
-                    currencyList.get(currencyOneIndex).getChar3(),
-                    currencyList.get(currencyTwoIndex).getChar3())));
+                    listNameCurrency[currencyOneIndex],
+                    listNameCurrency[currencyTwoIndex])));
         }
 
         @Override
