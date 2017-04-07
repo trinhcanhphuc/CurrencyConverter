@@ -2,9 +2,6 @@ package com.example.tcp.currencyconverter.api;
 
 import android.os.AsyncTask;
 import android.widget.EditText;
-import android.widget.TextView;
-
-import com.example.tcp.currencyconverter.MainActivity;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -26,8 +23,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-
-import static com.example.tcp.currencyconverter.MainActivity.currencyList;
 
 /**
  * Created by ASUS on 3/15/2017.
@@ -79,14 +74,14 @@ public class AsyncGetCurrencyConvert extends AsyncTask<Void, Void, String> {
             currencyListTemp.add(currencyItem);
         }
 
-        for (Currency c: currencyListTemp
+        /*for (Currency c: currencyListTemp
              ) {
           currencyList.add(new Currency(new String (c.getCode()), new String (c.getChar3()), new String (c.getSize()), new String (c.getName()),
                   new String (c.getRate()), new String (c.getChange())));
         }
         this.currencyResult.setText(String.valueOf(convertCurrency(currencyMoney,
                 currencyListTemp.get(0).getChar3(),
-                currencyListTemp.get(1).getChar3())));
+                currencyListTemp.get(1).getChar3())));*/
 
     }
 
@@ -151,7 +146,7 @@ public class AsyncGetCurrencyConvert extends AsyncTask<Void, Void, String> {
         return document;
     }
 
-    public float convertCurrency(float money, String currencyFrom, String currencyTo){
+    /*public float convertCurrency(float money, String currencyFrom, String currencyTo){
         float currencyFromRate=0f, currencyToRate = 0f;
         for(int i = 0; i < currencyList.size(); i++) {
             if (currencyList.get(i).getChar3().equals(currencyFrom))
@@ -160,6 +155,12 @@ public class AsyncGetCurrencyConvert extends AsyncTask<Void, Void, String> {
                 currencyToRate = Float.parseFloat(currencyList.get(i).getRate());
         }
         return money * currencyFromRate/currencyToRate;
+    }*/
+
+    private static String getValue(String tag, Element element) {
+        NodeList nodeList = element.getElementsByTagName(tag).item(0).getChildNodes();
+        Node node = nodeList.item(0);
+        return node.getNodeValue();
     }
 
 }
