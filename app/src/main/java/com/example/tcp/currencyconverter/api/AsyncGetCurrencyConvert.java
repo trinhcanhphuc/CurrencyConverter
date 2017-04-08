@@ -73,16 +73,6 @@ public class AsyncGetCurrencyConvert extends AsyncTask<Void, Void, String> {
                     pName, pRate, pChange);
             currencyListTemp.add(currencyItem);
         }
-
-        /*for (Currency c: currencyListTemp
-             ) {
-          currencyList.add(new Currency(new String (c.getCode()), new String (c.getChar3()), new String (c.getSize()), new String (c.getName()),
-                  new String (c.getRate()), new String (c.getChange())));
-        }
-        this.currencyResult.setText(String.valueOf(convertCurrency(currencyMoney,
-                currencyListTemp.get(0).getChar3(),
-                currencyListTemp.get(1).getChar3())));*/
-
     }
 
     public AsyncGetCurrencyConvert(float currencyMoney, String currencyFrom, String currencyTo,
@@ -145,17 +135,6 @@ public class AsyncGetCurrencyConvert extends AsyncTask<Void, Void, String> {
         }
         return document;
     }
-
-    /*public float convertCurrency(float money, String currencyFrom, String currencyTo){
-        float currencyFromRate=0f, currencyToRate = 0f;
-        for(int i = 0; i < currencyList.size(); i++) {
-            if (currencyList.get(i).getChar3().equals(currencyFrom))
-                currencyFromRate = Float.parseFloat(currencyList.get(i).getRate());
-            if (currencyList.get(i).getChar3().equals(currencyTo))
-                currencyToRate = Float.parseFloat(currencyList.get(i).getRate());
-        }
-        return money * currencyFromRate/currencyToRate;
-    }*/
 
     private static String getValue(String tag, Element element) {
         NodeList nodeList = element.getElementsByTagName(tag).item(0).getChildNodes();

@@ -41,6 +41,7 @@ public class AsyncDownloadXMLFile extends AsyncTask<Void , String, String> {
     private String f_url = "";
     private TextView tvResult;
     private ProgressDialog progressDialog;
+    private boolean isNetworkConnected;
 
     public List<Currency> currencyList = new ArrayList<>();
     String[] listNameCurrency;
@@ -61,7 +62,7 @@ public class AsyncDownloadXMLFile extends AsyncTask<Void , String, String> {
     }
 
     public AsyncDownloadXMLFile(Context context, String f_url, Spinner spinnerOne, Spinner spinnerTwo,
-    EditText eTCurrencyOne, EditText eTCurrencyTwo, TextView tvResult){
+    EditText eTCurrencyOne, EditText eTCurrencyTwo, TextView tvResult, boolean isNetworkConnected){
         this.context = context;
         this.f_url = f_url;
         this.spinnerOne = spinnerOne;
@@ -69,6 +70,7 @@ public class AsyncDownloadXMLFile extends AsyncTask<Void , String, String> {
         this.eTCurrencyOne = eTCurrencyOne;
         this.eTCurrencyTwo = eTCurrencyTwo;
         this.tvResult = tvResult;
+        this.isNetworkConnected = isNetworkConnected;
     }
 
     /**
@@ -77,42 +79,44 @@ public class AsyncDownloadXMLFile extends AsyncTask<Void , String, String> {
     @Override
     protected String doInBackground(Void... params) {
         int count;
-        try {
-            URL url = new URL(f_url);
-            URLConnection connection = url.openConnection();
-            connection.connect();
-            // this will be useful so that you can show a tipical 0-100% progress bar
-            int lenghtOfFile = connection.getContentLength();
+        if(isNetworkConnected) {
+            try {
+                URL url = new URL(f_url);
+                URLConnection connection = url.openConnection();
+                connection.connect();
+                // this will be useful so that you can show a tipical 0-100% progress bar
+                int lenghtOfFile = connection.getContentLength();
 
-            // download the file
-            InputStream input = new BufferedInputStream(url.openStream(), 8192);
+                // download the file
+                InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
-            // Output stream
-            OutputStream output = context.openFileOutput("currency.xml",MODE_WORLD_READABLE);
+                // Output stream
+                OutputStream output = context.openFileOutput("currency.xml", MODE_WORLD_READABLE);
 
-            byte data[] = new byte[1024];
+                byte data[] = new byte[1024];
 
-            long total = 0;
+                long total = 0;
 
-            while ((count = input.read(data)) != -1) {
-                total += count;
-                // publishing the progress....
-                // After this onProgressUpdate will be called
-                publishProgress("" + (int) ((total * 100) / lenghtOfFile));
+                while ((count = input.read(data)) != -1) {
+                    total += count;
+                    // publishing the progress....
+                    // After this onProgressUpdate will be called
+                    publishProgress("" + (int) ((total * 100) / lenghtOfFile));
 
-                // writing data to file
-                output.write(data, 0, count);
+                    // writing data to file
+                    output.write(data, 0, count);
+                }
+
+                // flushing output
+                output.flush();
+
+                // closing streams
+                output.close();
+                input.close();
+
+            } catch (Exception e) {
+                Log.e("Error: ", e.getMessage());
             }
-
-            // flushing output
-            output.flush();
-
-            // closing streams
-            output.close();
-            input.close();
-
-        } catch (Exception e) {
-            Log.e("Error: ", e.getMessage());
         }
 
         return null;
@@ -184,9 +188,12 @@ public class AsyncDownloadXMLFile extends AsyncTask<Void , String, String> {
 
             adapterOne.setDropDownViewResource (android.R.layout.simple_list_item_single_choice);
             spinnerOne.setAdapter(adapterOne);
+            spinnerOne.setSelection(25);//EUR
+            eTCurrencyOne.setText("1");
 
             adapterTwo.setDropDownViewResource (android.R.layout.simple_list_item_single_choice);
             spinnerTwo.setAdapter(adapterTwo);
+            spinnerTwo.setSelection(26);//USD
 
             spinnerOne.setOnItemSelectedListener(new MyProcessEvent1());
             spinnerTwo.setOnItemSelectedListener(new MyProcessEvent2());
@@ -284,7 +291,7 @@ public class AsyncDownloadXMLFile extends AsyncTask<Void , String, String> {
     private class MyProcessEvent1 implements AdapterView.OnItemSelectedListener
     {
         public void onItemSelected(AdapterView<?> arg0, View arg1, int index, long arg3) {
-            eTCurrencyOne.setText("25");
+            //eTCurrencyOne.setText("1");
             currencyOneIndex = index;
         }
 
