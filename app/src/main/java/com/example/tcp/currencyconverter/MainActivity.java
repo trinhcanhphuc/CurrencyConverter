@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
         eTCurrencyTwo = (EditText) findViewById(R.id.edit_text_currency_two);
         checkInternetConnection();
         new AsyncDownloadXMLFile(MainActivity.this, "http://bank-ua.com/export/currrate.xml", sp1, sp2,
-                eTCurrencyOne, eTCurrencyTwo).execute();
+                eTCurrencyOne, eTCurrencyTwo, tvResult).execute();
     }
 
     /*private class MyProcessEvent1 implements AdapterView.OnItemSelectedListener

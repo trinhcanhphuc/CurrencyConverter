@@ -2,6 +2,7 @@ package com.example.tcp.currencyconverter.api;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
@@ -47,6 +48,7 @@ public class AsyncDownloadXMLFile extends AsyncTask<Void , String, String> {
     Spinner spinnerOne, spinnerTwo;
     int currencyOneIndex, currencyTwoIndex;
     EditText eTCurrencyOne, eTCurrencyTwo;
+    private DBHelper mydb;
 
     /**
      * Before starting background thread
@@ -59,13 +61,14 @@ public class AsyncDownloadXMLFile extends AsyncTask<Void , String, String> {
     }
 
     public AsyncDownloadXMLFile(Context context, String f_url, Spinner spinnerOne, Spinner spinnerTwo,
-    EditText eTCurrencyOne, EditText eTCurrencyTwo){
+    EditText eTCurrencyOne, EditText eTCurrencyTwo, TextView tvResult){
         this.context = context;
         this.f_url = f_url;
         this.spinnerOne = spinnerOne;
         this.spinnerTwo = spinnerTwo;
         this.eTCurrencyOne = eTCurrencyOne;
         this.eTCurrencyTwo = eTCurrencyTwo;
+        this.tvResult = tvResult;
     }
 
     /**
@@ -121,7 +124,76 @@ public class AsyncDownloadXMLFile extends AsyncTask<Void , String, String> {
      * **/
     @Override
     protected void onPostExecute(String file_url) {
-        readFromInternal("currency.xml");
+        //readFromInternal("currency.xml");
+        readFromDatabase("currency.xml");
+    }
+
+    public void readFromDatabase(String path) {
+        try {
+            FileInputStream fIn = context.openFileInput(path);
+            InputStream is = fIn;
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(is);
+
+            Element element = doc.getDocumentElement();
+            element.normalize();
+
+            NodeList nList = doc.getElementsByTagName("item");
+
+            String pName = "", pFName = "", pRate = "";
+
+            mydb = new DBHelper(context);
+
+            for (int i = 0; i < nList.getLength(); i++) {
+                Node node = nList.item(i);
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element eElement = (Element) node;
+                    pName = eElement.getElementsByTagName("char3").item(0).getTextContent();
+                    pFName = eElement.getElementsByTagName("name").item(0).getTextContent();
+                    pRate = eElement.getElementsByTagName("rate").item(0).getTextContent();
+                }
+
+                mydb.insertCurrency(pName, "", pRate);
+                Cursor rs = mydb.getData(i + 1);
+                rs.moveToFirst();
+                pName = rs.getString(rs.getColumnIndex(DBHelper.CURRENCY_COLUMN_NAME));
+                pFName = rs.getString(rs.getColumnIndex(DBHelper.CURRENCY_COLUMN_FNAME));
+                pRate = rs.getString(rs.getColumnIndex(DBHelper.CURRENCY_COLUMN_RATE));
+
+                Currency currencyItem = new Currency(pName, pFName, pRate);
+                currencyList.add(currencyItem);
+            }
+
+            listNameCurrency = new String[currencyList.size()];
+            for(int i = 0; i < currencyList.size(); i++)
+                listNameCurrency[i] = currencyList.get(i).getChar3();
+
+            adapterOne = new ArrayAdapter<String>
+                    (
+                            context,
+                            android.R.layout.simple_spinner_item,
+                            listNameCurrency
+                    );
+            adapterTwo = new ArrayAdapter<String>
+                    (
+                            context,
+                            android.R.layout.simple_spinner_item,
+                            listNameCurrency
+                    );
+
+            adapterOne.setDropDownViewResource (android.R.layout.simple_list_item_single_choice);
+            spinnerOne.setAdapter(adapterOne);
+
+            adapterTwo.setDropDownViewResource (android.R.layout.simple_list_item_single_choice);
+            spinnerTwo.setAdapter(adapterTwo);
+
+            spinnerOne.setOnItemSelectedListener(new MyProcessEvent1());
+            spinnerTwo.setOnItemSelectedListener(new MyProcessEvent2());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void readFromInternal(String path) {

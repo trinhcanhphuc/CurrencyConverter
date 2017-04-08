@@ -73,4 +73,10 @@ public class Currency {
         this.rate = rate;
         this.change = change;
     }
+
+    public Currency(String char3, String name, String rate) {
+        this.char3 = char3;
+        this.name = name;
+        this.rate = rate;
+    }
 }
